@@ -1,21 +1,27 @@
 from board import Board
 from player import Player
 from player import COLORS
+from player import color_selection
 import pygame
 import sys
 
 def main():
-    # Initialize the game
+   # Initialize the game
     board = Board()
-    for i in range(4):
-        player_color = input("Choose your color (R/G/B/Y): ")
-        players = [Player(player_color) ]  # Let's say we have four players
-
-    # Initialize Pygame
     pygame.init()
-    screen = pygame.display.set_mode((800, 800))
-    pygame.display.set_caption("Board Game")
-    screen.fill((255,255,255))
+
+    # Set up the screen
+    box_size = 50
+    screen_size = (8 * box_size, 8 * box_size)
+    screen = pygame.display.set_mode(screen_size)
+    pygame.display.set_caption('Board Game')
+
+    
+    # Choose the player colors
+    player_color = color_selection(screen)
+    players = [Player(player_color) ]
+
+    clock = pygame.time.Clock()
 
     # Game loop
     while not board.is_game_over():
@@ -37,10 +43,11 @@ def main():
                     x, y = event.pos
                     player.continue_drawing(board.get_current_box(x, y), x, y)
 
-        # Draw the boxes on the screen
+        # Draw the game board and update the display outside of the event loop
+        screen.fill((255, 255, 255))
         board.draw_boxes(screen)
-
         pygame.display.flip()
+        clock.tick(60)
 
 if __name__ == "__main__":
     main()

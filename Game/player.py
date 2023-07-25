@@ -1,3 +1,5 @@
+import pygame
+import sys
 BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
 class Player:
     def start_drawing(self, box, x, y):
@@ -28,6 +30,40 @@ class Player:
         self.taken_boxes = 0
         self.current_box = None
 
+def color_selection(screen):
+    player_colors = {}
+    color_rects = {}
+    font = pygame.font.Font(None, 36)
+
+    while len(player_colors) < 4:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for color in COLORS:
+                    if color_rects[color].collidepoint(event.pos):
+                        if color not in player_colors.values():
+                            player_colors[len(player_colors) + 1] = color
+
+        screen.fill((255, 255, 255))
+        for i, color in enumerate(COLORS):
+            pygame.draw.rect(screen, COLORS[color], (50 + i * 80, 50, 70, 70))
+            color_rects[color] = pygame.Rect(50 + i * 80, 50, 70, 70)
+
+        for player, color in player_colors.items():
+            text = font.render(str(player), True, (255, 255, 255))  # Player number as white text
+            text_rect = text.get_rect(center=color_rects[color].center)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+    print('Player Colors:', player_colors)
+    
+    return player_colors[len(player_colors)] # Return the color of the last selected player
+   
+
 
 # In the Player class
 COLORS = {
@@ -36,3 +72,5 @@ COLORS = {
     'B': (0, 0, 255),  # Blue
     'Y': (255, 255, 0)  # Yellow
 }
+
+
