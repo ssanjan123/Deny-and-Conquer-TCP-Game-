@@ -1,43 +1,38 @@
+BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
 class Player:
-    DRAWING_THRESHOLD = 0.5  # The fraction of a box that needs to be drawn over for it to be considered taken
-
-    def start_drawing(self, box):
-        # If the player starts drawing in a box, we'll need to record which box they're drawing in
+    def start_drawing(self, box, x, y):
         self.current_box = box
+        box.scribble(self, x, y)
 
     def stop_drawing(self):
-        # If the player stops drawing, we'll need to check if they've drawn over more than the threshold of the current box
-        if self.current_box.percentage_filled > self.DRAWING_THRESHOLD:
-            self.current_box.is_taken = True
-            self.current_box.owner = self
+        if self.current_box:
+            # Check if the box is 50% filled
+            colored_pixels = sum(1 for pixel in self.current_box.image.getdata() if pixel == self.color)
+            total_pixels = BOX_SIZE * BOX_SIZE
+            self.current_box.percentage_filled = colored_pixels / total_pixels
 
-            # Set color
-            self.current_box.color = self.color
-        if self.current_box and self.current_box.percentage_filled > self.DRAWING_THRESHOLD:
-            self.current_box.is_taken = True
-            self.current_box.owner = self
-            self.taken_boxes += 1
-            # Set color
-            self.current_box.color = self.color
+            if self.current_box.percentage_filled >= 0.5:
+                self.current_box.is_taken = True
+                self.current_box.color = self.color
+                self.current_box.owner = self
 
-            self.current_box.color = self.color  # Set the color of the box
-        self.current_box = None
+            self.current_box = None
 
-    def continue_drawing(self, box):
-
-        # If the player continues drawing, we'll need to update the percentage_filled of the current box
+    def continue_drawing(self, box, x, y):
         if self.current_box and box == self.current_box:
-            self.current_box.scribble()
+            self.current_box.scribble(self, x, y)
 
     def __init__(self, color):
         self.id = id
-        self.color = COLORS[color]  # We'll have to define COLORS somewhere
+        self.color = COLORS[color]
         self.taken_boxes = 0
         self.current_box = None
 
+
+# In the Player class
 COLORS = {
-  'R': (255, 0, 0), # Red
-  'G': (0, 255, 0), # Green
-  'B': (0, 0, 255), # Blue
-  'Y': (255, 255, 0) # Yellow
+    'R': (255, 0, 0),  # Red
+    'G': (0, 255, 0),  # Green
+    'B': (0, 0, 255),  # Blue
+    'Y': (255, 255, 0)  # Yellow
 }

@@ -16,6 +16,7 @@ def main():
     screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption("Board Game")
     screen.fill((255,255,255))
+
     # Game loop
     while not board.is_game_over():
         for player in players:
@@ -26,13 +27,15 @@ def main():
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # If the mouse button is pressed, start drawing in the current box
-                    player.start_drawing(board.get_current_box(event.pos))
+                    x, y = event.pos
+                    player.start_drawing(board.get_current_box(x, y), x, y)
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    # If the mouse button is released, stop drawing and check if the box has been taken over
+                    # If the mouse button is released, stop drawing
                     player.stop_drawing()
                 elif event.type == pygame.MOUSEMOTION:
                     # If the mouse is moving, continue drawing in the current box
-                    player.continue_drawing(board.get_current_box(event.pos))
+                    x, y = event.pos
+                    player.continue_drawing(board.get_current_box(x, y), x, y)
 
         # Draw the boxes on the screen
         board.draw_boxes(screen)
