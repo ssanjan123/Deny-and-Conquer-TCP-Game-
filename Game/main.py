@@ -2,8 +2,45 @@ from board import Board
 from player import Player
 from player import COLORS
 from player import color_selection
+
 import pygame
 import sys
+
+def num_players_selection(screen):
+    font = pygame.font.Font(None, 36)
+
+    num_players = 0
+
+    # Create rectangles for player number selection
+    player_num_rects = {}
+    for i in range(1, 5):
+        player_num_rects[i] = pygame.Rect(100 + i * 40, 100, 30, 30)
+
+    while not num_players:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for i in range(1, 5):
+                    if player_num_rects[i].collidepoint(event.pos):
+                        num_players = i
+
+        screen.fill((255, 255, 255))
+        for i in range(1, 5):
+            pygame.draw.rect(screen, (0, 0, 0), player_num_rects[i], 2)
+            text = font.render(str(i), True, (0, 0, 0))
+            text_rect = text.get_rect(center=player_num_rects[i].center)
+            screen.blit(text, text_rect)
+
+        text = font.render("Choose the number of players:", True, (0, 0, 0))
+        screen.blit(text, (50, 50))
+
+        pygame.display.flip()
+
+    print('Number of Players:', num_players)
+    return num_players
 
 def main():
    # Initialize the game
@@ -15,10 +52,12 @@ def main():
     screen_size = (8 * box_size, 8 * box_size)
     screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption('Board Game')
-
+    
+    # Choose the number of players
+    num_players = num_players_selection(screen)
     
     # Choose the player colors
-    player_color = color_selection(screen)
+    player_color = color_selection(screen, num_players)
     players = [Player(player_color) ]
 
     clock = pygame.time.Clock()

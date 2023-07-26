@@ -30,12 +30,12 @@ class Player:
         self.taken_boxes = 0
         self.current_box = None
 
-def color_selection(screen):
+def color_selection(screen, num_players):
     player_colors = {}
     color_rects = {}
     font = pygame.font.Font(None, 36)
 
-    while len(player_colors) < 4:
+    while len(player_colors) < num_players:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
