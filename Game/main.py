@@ -42,24 +42,30 @@ def num_players_selection(screen):
     print('Number of Players:', num_players)
     return num_players
 
+def display_game_over_message(screen):
+    font = pygame.font.Font(None, 48)
+    text = font.render("Game Over", True, (255, 0, 0))
+    text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+    screen.blit(text, text_rect)
+    pygame.display.flip()
+    pygame.time.wait(3000)  # Display the message for 3 seconds
+    
 def main():
    # Initialize the game
     board = Board()
     pygame.init()
-
     # Set up the screen
     box_size = 50
     screen_size = (8 * box_size, 8 * box_size)
     screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption('Board Game')
-    
+
     # Choose the number of players
     num_players = num_players_selection(screen)
     
     # Choose the player colors
     player_color = color_selection(screen, num_players)
-    players = [Player(player_color) ]
-
+    players = [Player(color) for _, color in player_color.items()]
     clock = pygame.time.Clock()
 
     # Game loop
@@ -70,6 +76,7 @@ def main():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # If the mouse button is pressed, start drawing in the current box
                     x, y = event.pos
@@ -81,12 +88,16 @@ def main():
                     # If the mouse is moving, continue drawing in the current box
                     x, y = event.pos
                     player.continue_drawing(board.get_current_box(x, y), x, y)
-
+        # Check if the game is over
         # Draw the game board and update the display outside of the event loop
         screen.fill((255, 255, 255))
         board.draw_boxes(screen)
         pygame.display.flip()
         clock.tick(60)
 
+    # Display "Game Over" message on the screen
+    display_game_over_message(screen)
+    pygame.quit()
+    sys.exit()
 if __name__ == "__main__":
     main()

@@ -61,7 +61,7 @@ def color_selection(screen, num_players):
 
     print('Player Colors:', player_colors)
     
-    return player_colors[len(player_colors)] # Return the color of the last selected player
+    return player_colors # Return the color of the last selected player
    
 
 

@@ -30,7 +30,7 @@ class Box:
         right = min(BOX_SIZE, relative_x + square_size // 2)
         bottom = min(BOX_SIZE, relative_y + square_size // 2)
         draw.rectangle([left, top, right, bottom], fill=player.color)
-
+        
 
 
 
