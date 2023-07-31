@@ -21,7 +21,7 @@ def listen_for_updates():
             data, addr = client_socket.recvfrom(4096)
             board = pickle.loads(data)  # deserialize the game state
         except Exception as e:
-            print(f"[EXCEPTION] {e}")
+            #print(f"[EXCEPTION] {e}")
             break
 
 # start the listener thread
@@ -59,7 +59,7 @@ while True:
             x, y = pygame.mouse.get_pos()
             box = board.get_current_box(x, y)
             player.continue_drawing(box, x, y)
-            client_socket.sendall(pickle.dumps(("continue_drawing", x, y)))  # send the player's move to the server
+            #client_socket.sendall(pickle.dumps(("continue_drawing", x, y)))  # send the player's move to the server
 
     # draw the game board
     screen.fill((255, 255, 255))
