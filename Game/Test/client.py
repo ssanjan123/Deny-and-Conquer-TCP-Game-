@@ -3,18 +3,25 @@ import pickle
 import pygame
 from board import Board
 from player import Player
-
+import copy
+import time
+import random
+import sys
 
 def receive_data(sock):
-    length_bytes = sock.recv(4)
-    length = int.from_bytes(length_bytes, 'big')
-    data = b''
-    while len(data) < length:
-        more = sock.recv(length - len(data))
-        if not more:
-            raise EOFError('Socket closed while receiving data')
-        data += more
-    return pickle.loads(data)
+    try:
+        length_bytes = sock.recv(4)
+        length = int.from_bytes(length_bytes, 'big')
+        data = b''
+        while len(data) < length:
+            more = sock.recv(length - len(data))
+            if not more:
+                raise EOFError('Socket closed while receiving data')
+            data += more
+        return pickle.loads(data)
+    except BlockingIOError:
+        return None
+
 # Server setup
 BUFFER_SIZE = 2048
 SERVER_IP = '127.0.0.1'  # replace with your server's IP
@@ -52,12 +59,16 @@ pygame.init()
 while True:
     # Handle incoming data from the server
     try:
-        board = receive_data(client_socket)
-        print(f"Received update from server. Current board state: {board}")
+        data = receive_data(client_socket)
+        if data is not None:
+            if data == "box_locked":
+                # Display an error message on the screen
+                print("The box you're trying to draw on is currently in use.")
+            else:
+                board = data
     except BlockingIOError:
         pass  # No data to receive
     except Exception as e:
-        print(f"An exception occurred: {e}")
         continue
 
 
@@ -66,9 +77,13 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            print(f"Start drawing at ({x}, {y})")
-            player.start_drawing(board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE), x, y)
+            box = board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE)
+            box_before_drawing = copy.deepcopy(box) # Make a copy of the box before drawing
+            player.start_drawing(box, x, y)
             client_socket.sendall(pickle.dumps(("start_drawing", x, y)))
+
+
+
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = pygame.mouse.get_pos()
             print(f"Stop drawing at ({x}, {y})")
@@ -79,6 +94,10 @@ while True:
             #print(f"Continue drawing at ({x}, {y})")
             player.continue_drawing(board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE), x, y)
             client_socket.sendall(pickle.dumps(("continue_drawing", x, y)))
+
+        elif event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
           
 
     # Draw the game board and update the display outside of the event loop

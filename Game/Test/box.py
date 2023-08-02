@@ -1,10 +1,12 @@
 # box.py
 from PIL import Image
 from PIL import ImageDraw
+import threading
 BOX_SIZE = 100  # Define the box size here, or get it from elsewhere in your program
 
 class Box:
     def __init__(self, top_left_corner):
+        self.lock = threading.Lock()
         self.is_taken = False 
         self.owner = None
         self.color = None
@@ -12,6 +14,16 @@ class Box:
 
         # Create a new image for this box
         self.image = Image.new('RGB', (BOX_SIZE, BOX_SIZE))
+
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['lock']  # don't include the lock when pickling
+        return state
+    
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.lock = threading.Lock()  # add the lock back after unpickling
 
 
 

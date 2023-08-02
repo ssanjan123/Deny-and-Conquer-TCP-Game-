@@ -38,7 +38,7 @@ screen = pygame.display.set_mode(screen_size)
 board = Board()  # initialize with an empty board
 
 # set up the player
-player = Player("R")  # replace with your player's color
+player = Player("B")  # replace with your player's color
  
 
 # start the game loop

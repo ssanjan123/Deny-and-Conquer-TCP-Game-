@@ -1,6 +1,7 @@
 import socket
 import threading
 import pickle
+import time
 from player import Player
 from board import Board
 
@@ -48,7 +49,9 @@ def handle_client(client_socket, client_addr):
             # Update the game board
             box = board.get_current_box(x ,y)
             if action == "start_drawing":
-                players[client_socket].start_drawing(box, x, y)
+                result = players[client_socket].start_drawing(box, x, y)
+                if result == "box_locked":
+                    send_data(client_socket, "box_locked")
             elif action == "stop_drawing":
                 players[client_socket].stop_drawing()
             elif action == "continue_drawing":
@@ -56,9 +59,9 @@ def handle_client(client_socket, client_addr):
         # Send the updated board to all connected clients
         board_pickle = pickle.dumps(board)
         length = len(board_pickle)
-        #print(f"Sending board to clients: {pickle.dumps(board)}")
         for client in players.keys():
             send_data(client_socket, board)
+
 
 
 

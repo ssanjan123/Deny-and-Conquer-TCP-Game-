@@ -1,17 +1,20 @@
 import pygame
 import sys
+
+
 class Player:
-    BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
+    BOX_SIZE = 100
     def start_drawing(self, box, x, y):
-        if box is None:
-            print(f"Invalid coordinates: ({x}, {y}). No box exists at this location.")
-            return
+        if box is None or not box.lock.acquire(blocking=False):
+            print(f"Box is either invalid or currently in use: ({x}, {y})")
+            return "box_locked"
         self.current_box = box
         box.scribble(self, x, y)
-
+        return None
 
     def stop_drawing(self):
         if self.current_box:
+            self.current_box.lock.release()
             # Check if the box is 50% filled
             colored_pixels = sum(1 for pixel in self.current_box.image.getdata() if pixel == self.color)
             total_pixels = Player.BOX_SIZE * Player.BOX_SIZE
