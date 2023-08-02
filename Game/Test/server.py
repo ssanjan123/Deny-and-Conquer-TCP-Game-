@@ -12,7 +12,7 @@ def send_data(client, data):
     client.sendall(length.to_bytes(4, 'big'))
     client.sendall(data_pickle)
 # Server setup
-SERVER_IP = '127.0.0.1'  # replace with your server's IP
+SERVER_IP = '0.0.0.0' # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 BUFFER_SIZE = 2048
