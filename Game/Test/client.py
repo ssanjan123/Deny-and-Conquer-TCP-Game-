@@ -24,7 +24,7 @@ def receive_data(sock):
 
 # Server setup
 BUFFER_SIZE = 2048
-SERVER_IP = '154.20.101.82'  # replace with your server's IP
+SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 
@@ -40,7 +40,7 @@ print(f"Connected to server at {ADDR}")
 board = Board()  # initialize with an empty board
 
 # Create a player for this client
-player = Player("Y")  # replace with the player's color key
+player = Player("G")  # replace with the player's color key
 
 # Send new player message to server
 client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
