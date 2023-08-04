@@ -8,6 +8,8 @@ class Player:
         if box is None or not box.lock.acquire(blocking=False):
             print(f"Box is either invalid or currently in use: ({x}, {y})")
             return "box_locked"
+        if box.is_taken:
+            return "box_taken"
         self.current_box = box
         print("current box set to: ", self.current_box.top_left_corner)
         box.scribble(self, x, y)
