@@ -38,10 +38,14 @@ def handle_client(client_socket, client_addr):
         if not data:
             break
         action, *params = pickle.loads(data)  # Deserialize the player's move
+        print("action is: ", action)
         if action == "new_player":
             color = params[0]
             players[client_socket] = Player(color)
             print(f"New player connected with color {color}")
+        elif action == "stop_drawing_threshold":
+            print("I have received a threshold action")
+            players[client_socket].stop_drawing_server_colored()
         elif action in ["start_drawing", "stop_drawing", "continue_drawing"]:
             x, y = params
             if action in ["start_drawing", "stop_drawing"]:
@@ -60,8 +64,8 @@ def handle_client(client_socket, client_addr):
         board_pickle = pickle.dumps(board)
         length = len(board_pickle)
         for client in players.keys():
-            send_data(client_socket, board)
-
+            #print(client)
+            send_data(client, board)
 
 
 

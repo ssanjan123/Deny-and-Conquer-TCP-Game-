@@ -9,6 +9,7 @@ class Player:
             print(f"Box is either invalid or currently in use: ({x}, {y})")
             return "box_locked"
         self.current_box = box
+        print("current box set to: ", self.current_box.top_left_corner)
         box.scribble(self, x, y)
         return None
 
@@ -18,17 +19,38 @@ class Player:
             # Check if the box is 50% filled
             colored_pixels = sum(1 for pixel in self.current_box.image.getdata() if pixel == self.color)
             total_pixels = Player.BOX_SIZE * Player.BOX_SIZE
+            print("total is: ", total_pixels)
+            print("colored is: ", colored_pixels)
+            print("box is: ", self.current_box.top_left_corner)
             self.current_box.percentage_filled = colored_pixels / total_pixels
 
-            if self.current_box.percentage_filled >= 0.5:
-                self.current_box.is_taken = True
-                self.current_box.color = self.color
-                self.current_box.owner = self
+            print(self.current_box.percentage_filled)
+
+            if self.current_box.percentage_filled >= 0.2:
+                self.threshold_reached = True
+                # self.current_box.is_taken = True
+                # self.current_box.color = self.color
+                # self.current_box.owner = self
 
             self.current_box = None
 
+    def stop_drawing_server_colored(self):
+        if self.current_box:
+            self.current_box.lock.release()
+
+            self.current_box.is_taken = True
+            self.current_box.color = self.color
+            self.current_box.owner = self
+            self.taken_boxes += 1
+            print("This should have increased: ", self.taken_boxes)
+        
+            self.current_box = None
+        else:
+            print("Current box is none")
+
+
     def continue_drawing(self, box, x, y):
-        if self.current_box and box == self.current_box:
+        if self.current_box and box and box.top_left_corner == self.current_box.top_left_corner:
             self.current_box.scribble(self, x, y)
 
     def __init__(self, color_key):
@@ -36,6 +58,8 @@ class Player:
         self.color = COLORS[color_key]
         self.taken_boxes = 0
         self.current_box = None
+        self.drawing_flag = False
+        self.threshold_reached = False
 
 def color_selection(screen, num_players):
     player_colors = {}

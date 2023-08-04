@@ -24,6 +24,7 @@ def receive_data(sock):
 
 # Server setup
 BUFFER_SIZE = 2048
+#SERVER_IP = '154.20.101.82'  # replace with your server's IP
 SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
@@ -40,7 +41,7 @@ print(f"Connected to server at {ADDR}")
 board = Board()  # initialize with an empty board
 
 # Create a player for this client
-player = Player("G")  # replace with the player's color key
+player = Player("R")  # replace with the player's color key
 
 # Send new player message to server
 client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
@@ -65,6 +66,7 @@ while True:
                 # Display an error message on the screen
                 print("The box you're trying to draw on is currently in use.")
             else:
+                print("received board update")
                 board = data
     except BlockingIOError:
         pass  # No data to receive
@@ -76,8 +78,10 @@ while True:
     # Handle local events
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
+            player.drawing_flag = True
             x, y = pygame.mouse.get_pos()
-            box = board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE)
+            #box = board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE)
+            box = board.get_current_box(x, y)
             box_before_drawing = copy.deepcopy(box) # Make a copy of the box before drawing
             player.start_drawing(box, x, y)
             client_socket.sendall(pickle.dumps(("start_drawing", x, y)))
@@ -88,12 +92,21 @@ while True:
             x, y = pygame.mouse.get_pos()
             print(f"Stop drawing at ({x}, {y})")
             player.stop_drawing()
-            client_socket.sendall(pickle.dumps(("stop_drawing", x, y)))
+            player.drawing_flag = False
+            #client_socket.sendall(pickle.dumps(("stop_drawing", x, y)))
+            if player.threshold_reached:
+                client_socket.sendall(pickle.dumps(("stop_drawing_threshold", x, y)))
+                print("I have sent out a filled box")
+            else:
+                client_socket.sendall(pickle.dumps(("stop_drawing", x, y)))
+            player.threshold_reached = False
         elif event.type == pygame.MOUSEMOTION:
             x, y = pygame.mouse.get_pos()
+            if player.drawing_flag:
+                player.continue_drawing(board.get_current_box(x, y), x, y)
+            
             #print(f"Continue drawing at ({x}, {y})")
-            player.continue_drawing(board.get_current_box(x // Board.BOX_SIZE, y // Board.BOX_SIZE), x, y)
-            client_socket.sendall(pickle.dumps(("continue_drawing", x, y)))
+            #client_socket.sendall(pickle.dumps(("continue_drawing", x, y)))
 
         elif event.type == pygame.QUIT:
             pygame.quit()

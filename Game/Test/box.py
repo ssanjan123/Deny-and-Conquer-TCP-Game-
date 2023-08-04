@@ -10,6 +10,7 @@ class Box:
         self.is_taken = False 
         self.owner = None
         self.color = None
+
         self.top_left_corner = top_left_corner
 
         # Create a new image for this box
@@ -41,7 +42,10 @@ class Box:
         top = max(0, relative_y - square_size // 2)
         right = min(BOX_SIZE, relative_x + square_size // 2)
         bottom = min(BOX_SIZE, relative_y + square_size // 2)
+        right = max(right, left + 1)
+        bottom = max(bottom, top + 1)
         draw.rectangle([left, top, right, bottom], fill=player.color)
+        #draw.rectangle([left, top, right, bottom], fill=(0,255,0, 255), outline=(255, 0, 0))
         
 
 

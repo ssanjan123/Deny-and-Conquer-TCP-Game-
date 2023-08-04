@@ -3,8 +3,10 @@ import pygame
 
 class Board:
     BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
+    COLS = 2
+    ROWS = 2
     def __init__(self):
-        self.boxes = [[Box((x*Board.BOX_SIZE, y*Board.BOX_SIZE)) for x in range(2)] for y in range(2)]
+        self.boxes = [[Box((x*Board.BOX_SIZE, y*Board.BOX_SIZE)) for x in range(Board.COLS)] for y in range(Board.ROWS)]
 
     def is_game_over(self):
         return all(box.is_taken for row in self.boxes for box in row)
@@ -13,7 +15,7 @@ class Board:
         if 0 <= x < 2*Board.BOX_SIZE and 0 <= y < 2*Board.BOX_SIZE:
             box_x = x // Board.BOX_SIZE
             box_y = y // Board.BOX_SIZE
-            return self.boxes[box_y][box_x]
+            return self.boxes[box_x][box_y]
         else:
             return None
 
