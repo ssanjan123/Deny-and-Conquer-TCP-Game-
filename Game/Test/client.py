@@ -24,8 +24,8 @@ def receive_data(sock):
 
 # Server setup
 BUFFER_SIZE = 2048
-#SERVER_IP = '154.20.101.82'  # replace with your server's IP
-SERVER_IP = '127.0.0.1'  # replace with your server's IP
+SERVER_IP = '154.20.101.82'  # replace with your server's IP
+#SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 
