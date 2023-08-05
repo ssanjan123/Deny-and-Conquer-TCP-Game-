@@ -91,8 +91,20 @@ def handle_broadcast():
 client_broadcaster = threading.Thread(target=handle_broadcast)
 client_broadcaster.start()
 
-# Wait for client connections
+# Wait for client connections 
+# Store client threads in a list
+threads = []
 while True:
+    if board.is_game_over():
+        break
     client_socket, client_addr = server_socket.accept()
     client_handler = threading.Thread(target=handle_client, args=(client_socket, client_addr))
     client_handler.start()
+    threads.append(client_handler)
+
+# After game is over join the client threads 
+for thread in threads:
+    thread.join()
+
+# Join broadcasting thread
+client_broadcaster.join()
