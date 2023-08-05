@@ -31,8 +31,6 @@ board = Board()  # initialize with an empty board
 players = {}  # dictionary to keep track of players
 player_colors = ["RED", "GREEN", "BLUE", "YELLOW"]  # list of player colors
 
-#broadcast sync board update
-idle_broadcast = True
 
 
 def handle_client(client_socket, client_addr):
@@ -62,30 +60,22 @@ def handle_client(client_socket, client_addr):
                 players[client_socket].stop_drawing()
             elif action == "continue_drawing":
                 players[client_socket].continue_drawing(box, x, y)
-        # Send the updated board to all connected clients
-        board_pickle = pickle.dumps(board)
-        length = len(board_pickle)
-        for client in players.keys():
-            send_data(client, board)
-        idle_broadcast = False
-
 
 
     print(f"Client {client_addr} disconnected")
     client_socket.close()
     del players[client_socket]
+    
 
-# only broadcast if communication has been idle for a while
-# syncs all player's boards in case players lose a board update message
+# syncs all player's boards
 def handle_broadcast():
     while True:
-        time.sleep(0.7)
-        if idle_broadcast:
-            for client in players.keys():
-                send_data(client, board)
-            idle_broadcast = False
-        else:
-            idle_broadcast = True
+        time.sleep(0.5)
+        print("broadcasting")
+        for client in players.keys():
+            #send_data(client, "0123456789ABCDEF")
+            send_data(client, board)
+
 
 
 client_broadcaster = threading.Thread(target=handle_broadcast)

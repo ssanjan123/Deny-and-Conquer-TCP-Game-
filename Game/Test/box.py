@@ -26,6 +26,11 @@ class Box:
         self.__dict__.update(state)
         self.lock = threading.Lock()  # add the lock back after unpickling
 
+    def deep_copy(self, other_box):
+        self.is_taken = other_box.is_taken
+        self.owner = other_box.owner
+        self.color = other_box.color
+
 
 
     def scribble(self, player, x, y):

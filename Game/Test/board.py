@@ -11,6 +11,11 @@ class Board:
     def is_game_over(self):
         return all(box.is_taken for row in self.boxes for box in row)
 
+    def deep_copy(self, other_board):
+        for y in range(Board.ROWS):
+            for x in range(Board.COLS):
+                self.boxes[y][x].deep_copy(other_board.boxes[y][x])
+
     def get_current_box(self, x, y):
         if 0 <= x < Board.COLS*Board.BOX_SIZE and 0 <= y < Board.ROWS*Board.BOX_SIZE:
             box_x = x // Board.BOX_SIZE

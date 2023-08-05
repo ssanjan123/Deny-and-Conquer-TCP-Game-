@@ -7,6 +7,7 @@ import copy
 import time
 import random
 import sys
+import threading
 
 def receive_data(sock):
     try:
@@ -20,19 +21,21 @@ def receive_data(sock):
             data += more
         return pickle.loads(data)
     except BlockingIOError:
+        #print("i am here")
         return None
 
 # Server setup
 BUFFER_SIZE = 2048
 #SERVER_IP = '154.20.101.82'  # replace with your server's IP
-SERVER_IP = '127.0.0.1'  # replace with your server's IP
+SERVER_IP = '24.80.198.173'  # replace with your server's IP
+#SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 
 # Create a TCP socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(ADDR)
-client_socket.setblocking(False)  # Set the socket to non-blocking
+#client_socket.setblocking(False)  # Set the socket to non-blocking
 
 
 print(f"Connected to server at {ADDR}")
@@ -56,24 +59,31 @@ pygame.display.set_caption('Board Game')
 # Initialize Pygame
 pygame.init()
 
+
+
+def listener(board):
+    while True:
+        # Handle incoming data from the server
+        try:
+            data = receive_data(client_socket)
+            if data is not None:
+                if data == "box_locked":
+                    # Display an error message on the screen
+                    print("The box you're trying to draw on is currently in use.")
+                else:
+                    print("received board update")
+                    board.deep_copy(data)
+        except BlockingIOError:
+            pass  # No data to receive
+        except Exception as e:
+            continue
+
+
+client_listener = threading.Thread(target=listener, args=(board, ))
+client_listener.start()
+
 # Main game loop
 while True:
-    # Handle incoming data from the server
-    try:
-        data = receive_data(client_socket)
-        if data is not None:
-            if data == "box_locked":
-                # Display an error message on the screen
-                print("The box you're trying to draw on is currently in use.")
-            else:
-                print("received board update")
-                board = data
-    except BlockingIOError:
-        pass  # No data to receive
-    except Exception as e:
-        continue
-
-
 
     # Handle local events
     for event in pygame.event.get():
