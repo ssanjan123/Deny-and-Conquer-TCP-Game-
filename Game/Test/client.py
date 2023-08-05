@@ -3,6 +3,8 @@ import pickle
 import pygame
 from board import Board
 from player import Player
+from player import color_selection
+import ctypes
 import copy
 import time
 import random
@@ -24,7 +26,7 @@ def receive_data(sock):
 
 # Server setup
 BUFFER_SIZE = 2048
-SERVER_IP = '154.20.101.82'  # replace with your server's IP
+SERVER_IP = '127.0.0.1'  # replace with your server's IP
 #SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
@@ -37,14 +39,8 @@ client_socket.setblocking(False)  # Set the socket to non-blocking
 
 print(f"Connected to server at {ADDR}")
 
+
 # Set up the game board
-board = Board()  # initialize with an empty board
-
-# Create a player for this client
-player = Player("R")  # replace with the player's color key
-
-# Send new player message to server
-client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
 # Initialize the game
 board = Board()
 pygame.init()
@@ -53,11 +49,19 @@ box_size = 50
 screen_size = (8 * box_size, 8 * box_size)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption('Board Game')
-# Initialize Pygame
-pygame.init()
+
+# Call the color selection function before the game loop starts
+chosen_color = color_selection(screen)
+
+# Create the player after color selection
+player = Player(chosen_color)
+
+# Send new player message to server
+client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
+
 
 # Main game loop
-while True:
+while not board.is_game_over():
     # Handle incoming data from the server
     try:
         data = receive_data(client_socket)
@@ -118,3 +122,17 @@ while True:
     board.draw_boxes(screen)
     pygame.display.flip()
 
+# Receive and process game over data
+game_over_data = receive_data(client_socket)
+if game_over_data is not None:
+    game_over_data = pickle.loads(game_over_data)
+    if game_over_data["action"] == "game_over":
+        winner_color_key = game_over_data["winner_color_key"]
+        ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
+        print(f"The game is over. {winner_color_key}")
+    else:
+        print("Game over message received, but action is not recognized.")
+
+# Clean up and exit
+pygame.quit()
+sys.exit()

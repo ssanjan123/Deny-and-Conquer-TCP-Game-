@@ -69,27 +69,55 @@ def handle_client(client_socket, client_addr):
             send_data(client, board)
         idle_broadcast = False
 
-
+         # Check for game over condition and send appropriate message
+        if board.is_game_over():
+            winner_color_key = display_game_over_message(players)
+            game_over_data = {"action": "game_over", "winner_color_key": winner_color_key}
+            send_data(client_socket, pickle.dumps(game_over_data))
+            break
 
     print(f"Client {client_addr} disconnected")
     client_socket.close()
     del players[client_socket]
 
+def display_game_over_message(players):
+    max_taken_boxes = 0
+    winner_color_key = None
+
+    for color_key, player in players.items():
+        if player.taken_boxes > max_taken_boxes:
+            max_taken_boxes = player.taken_boxes
+            winner_color_key = color_key
+
+    if winner_color_key is not None:
+        winner_color = players[winner_color_key].color  # Get the color from the player object
+        if winner_color == (255, 0, 0):
+            winner_message = f"The winner is Player Red"
+        elif winner_color == (0, 255, 0):
+            winner_message = f"The winner is Player Green"
+        elif winner_color == (0, 0, 255):
+            winner_message = f"The winner is Player Blue"
+        elif winner_color == (255, 255, 0):
+            winner_message = f"The winner is Player Yellow"
+    else:
+        winner_message = "It's a tie!"
+
+    return winner_message
 # only broadcast if communication has been idle for a while
 # syncs all player's boards in case players lose a board update message
-def handle_broadcast():
-    while True:
-        time.sleep(0.7)
-        if idle_broadcast:
-            for client in players.keys():
-                send_data(client, board)
-            idle_broadcast = False
-        else:
-            idle_broadcast = True
+# def handle_broadcast():
+#     while True:
+#         time.sleep(0.7)
+#         if idle_broadcast:
+#             for client in players.keys():
+#                 send_data(client, board)
+#             idle_broadcast = False
+#         else:
+#             idle_broadcast = True
 
 
-client_broadcaster = threading.Thread(target=handle_broadcast)
-client_broadcaster.start()
+# client_broadcaster = threading.Thread(target=handle_broadcast)
+# client_broadcaster.start()
 
 # Wait for client connections
 while True:
