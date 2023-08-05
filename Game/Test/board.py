@@ -9,6 +9,13 @@ class Board:
         self.boxes = [[Box((x*Board.BOX_SIZE, y*Board.BOX_SIZE)) for x in range(Board.COLS)] for y in range(Board.ROWS)]
 
     def is_game_over(self):
+        # print("what the fuck")
+        # for y in range(Board.ROWS):
+        #     for x in range(Board.COLS):
+        #         print(x, " ", y)
+        #         if not self.boxes[y][x].is_taken:
+        #             return False
+        # return True
         return all(box.is_taken for row in self.boxes for box in row)
 
     def deep_copy(self, other_board):

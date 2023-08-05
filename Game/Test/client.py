@@ -3,6 +3,8 @@ import pickle
 import pygame
 from board import Board
 from player import Player
+from player import color_selection
+import ctypes
 import copy
 import time
 import random
@@ -24,50 +26,19 @@ def receive_data(sock):
         #print("i am here")
         return None
 
-# Server setup
-BUFFER_SIZE = 2048
-#SERVER_IP = '154.20.101.82'  # replace with your server's IP
-SERVER_IP = '24.80.198.173'  # replace with your server's IP
-#SERVER_IP = '127.0.0.1'  # replace with your server's IP
-SERVER_PORT = 5555  # replace with your server's port
-ADDR = (SERVER_IP, SERVER_PORT)
-
-# Create a TCP socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(ADDR)
-#client_socket.setblocking(False)  # Set the socket to non-blocking
-
-
-print(f"Connected to server at {ADDR}")
-
-# Set up the game board
-board = Board()  # initialize with an empty board
-
-# Create a player for this client
-player = Player("R")  # replace with the player's color key
-
-# Send new player message to server
-client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
-# Initialize the game
-board = Board()
-pygame.init()
-# Set up the screen
-box_size = 50
-screen_size = (8 * box_size, 8 * box_size)
-screen = pygame.display.set_mode(screen_size)
-pygame.display.set_caption('Board Game')
-# Initialize Pygame
-pygame.init()
-
-
-
 def listener(board):
-    while True:
+    end_of_game = False
+    while not end_of_game:
         # Handle incoming data from the server
         try:
             data = receive_data(client_socket)
             if data is not None:
-                if data == "box_locked":
+                if type(data) is dict:
+                    winner_color_key = data["winner_color_key"]
+                    ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
+                    print(f"The game is over. {winner_color_key}")
+                    end_of_game = True
+                elif data == "box_locked":
                     # Display an error message on the screen
                     print("The box you're trying to draw on is currently in use.")
                 else:
@@ -77,14 +48,57 @@ def listener(board):
             pass  # No data to receive
         except Exception as e:
             continue
+    
+    while True:
+        try:
+            data = receive_data(client_socket)
+            if data is not None:
+                board.deep_copy(data)
+                break
+        except BlockingIOError:
+            pass  # No data to receive
+        except Exception as e:
+            continue
 
+    return
+# Server setup
+BUFFER_SIZE = 2048
+#SERVER_IP = '154.20.101.82'  # replace with your server's IP
+#SERVER_IP = '24.80.198.173'  # replace with your server's IP
+SERVER_IP = '127.0.0.1'  # replace with your server's IP
+SERVER_PORT = 5555  # replace with your server's port
+ADDR = (SERVER_IP, SERVER_PORT)
+# Create a TCP socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(ADDR)
+#client_socket.setblocking(False)  # Set the socket to non-blocking
+print(f"Connected to server at {ADDR}")
 
+# Set up the game board
+# Initialize the game
+board = Board()
+pygame.init()
+game_over = False
+# Set up the screen
+box_size = 50
+screen_size = (8 * box_size, 8 * box_size)
+screen = pygame.display.set_mode(screen_size)
+pygame.display.set_caption('Board Game')
+
+# Call the color selection function before the game loop starts
+chosen_color = color_selection(screen)
+
+# Create the player after color selection
+player = Player(chosen_color)
+
+# Send new player message to server
+client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
+
+#start listener thread
 client_listener = threading.Thread(target=listener, args=(board, ))
 client_listener.start()
-
 # Main game loop
-while True:
-
+while not game_over:
     # Handle local events
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -128,3 +142,13 @@ while True:
     board.draw_boxes(screen)
     pygame.display.flip()
 
+    if board.is_game_over():
+        game_over = True
+
+
+# Clean up and exit
+pygame.quit()
+client_listener.join()
+client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+time.sleep(2)
+client_socket.close()
