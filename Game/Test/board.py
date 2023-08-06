@@ -3,8 +3,8 @@ import pygame
 
 class Board:
     BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
-    COLS = 2
-    ROWS = 2
+    COLS = 4
+    ROWS = 4
     def __init__(self):
         self.boxes = [[Box((x*Board.BOX_SIZE, y*Board.BOX_SIZE)) for x in range(Board.COLS)] for y in range(Board.ROWS)]
 

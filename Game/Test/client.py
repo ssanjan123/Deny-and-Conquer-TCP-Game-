@@ -75,8 +75,8 @@ def listener(board):
 BUFFER_SIZE = 2048
 glob_string = ""
 #SERVER_IP = '154.20.101.82'  # replace with your server's IP
-#SERVER_IP = '24.80.198.173'  # replace with your server's IP
-SERVER_IP = '127.0.0.1'  # replace with your server's IP
+SERVER_IP = '24.80.198.173'  # replace with your server's IP
+#SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 # Create a TCP socket
@@ -164,7 +164,7 @@ pygame.quit()
 pygame.init()
 
 # Screen settings
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1000, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Display Winner")
 
@@ -174,7 +174,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 # Font settings
-font = pygame.font.SysFont('Arial', 40)
+font = pygame.font.SysFont('Arial', 32)
 
 winner = RED
 screen.fill(WHITE)
@@ -182,7 +182,7 @@ winner_text = font.render(f"{glob_string} Wins!", True, BLACK)
 text_rect = winner_text.get_rect(center=(WIDTH/2, HEIGHT/2))
 screen.blit(winner_text, text_rect)
 pygame.display.flip()
-time.sleep(3)
+time.sleep(10)
 pygame.quit()
 client_listener.join()
 client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
