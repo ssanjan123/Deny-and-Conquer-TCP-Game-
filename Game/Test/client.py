@@ -3,10 +3,18 @@ import pickle
 import pygame
 from board import Board
 from player import Player
+from player import color_selection
+import ctypes
 import copy
 import time
 import random
 import sys
+import threading
+
+from tkinter import *
+from tkinter import messagebox
+
+
 
 def receive_data(sock):
     try:
@@ -20,61 +28,88 @@ def receive_data(sock):
             data += more
         return pickle.loads(data)
     except BlockingIOError:
+        #print("i am here")
         return None
+
+def listener(board):
+    end_of_game = False
+    while not end_of_game:
+        # Handle incoming data from the server
+        try:
+            data = receive_data(client_socket)
+            if data is not None:
+                if type(data) is dict:
+                    winner_color_key = data["winner_color_key"]
+                    #ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
+                    print(f"The game is over. {winner_color_key}")
+                    global glob_string
+                    glob_string = f"The game is over. {winner_color_key}"
+                    end_of_game = True
+                elif data == "box_locked":
+                    # Display an error message on the screen
+                    print("The box you're trying to draw on is currently in use.")
+                else:
+                    #print("serialized data is: ", data)
+                    #board.deep_copy(data)
+                    board.string_to_board(data)
+        except BlockingIOError:
+            pass  # No data to receive
+        except Exception as e:
+            continue
+    
+    while True:
+        try:
+            data = receive_data(client_socket)
+            if data is not None:
+                board.string_to_board(data)
+                break
+        except BlockingIOError:
+            pass  # No data to receive
+        except Exception as e:
+            continue
+
+
+    return
 
 # Server setup
 BUFFER_SIZE = 2048
-SERVER_IP = '154.20.101.82'  # replace with your server's IP
+glob_string = ""
+#SERVER_IP = '154.20.101.82'  # replace with your server's IP
+SERVER_IP = '24.80.198.173'  # replace with your server's IP
 #SERVER_IP = '127.0.0.1'  # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
-
 # Create a TCP socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(ADDR)
-client_socket.setblocking(False)  # Set the socket to non-blocking
-
-
+#client_socket.setblocking(False)  # Set the socket to non-blocking
 print(f"Connected to server at {ADDR}")
 
 # Set up the game board
-board = Board()  # initialize with an empty board
-
-# Create a player for this client
-player = Player("R")  # replace with the player's color key
-
-# Send new player message to server
-client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
 # Initialize the game
 board = Board()
 pygame.init()
+game_over = False
 # Set up the screen
 box_size = 50
 screen_size = (8 * box_size, 8 * box_size)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption('Board Game')
-# Initialize Pygame
-pygame.init()
 
+# Call the color selection function before the game loop starts
+chosen_color = color_selection(screen)
+
+# Create the player after color selection
+player = Player(chosen_color)
+
+# Send new player message to server
+client_socket.sendall(pickle.dumps(("new_player", player.color_key)))
+
+#start listener thread
+client_listener = threading.Thread(target=listener, args=(board, ))
+client_listener.start()
 # Main game loop
-while True:
-    # Handle incoming data from the server
-    try:
-        data = receive_data(client_socket)
-        if data is not None:
-            if data == "box_locked":
-                # Display an error message on the screen
-                print("The box you're trying to draw on is currently in use.")
-            else:
-                print("received board update")
-                board = data
-    except BlockingIOError:
-        pass  # No data to receive
-    except Exception as e:
-        continue
-
-
-
+while not game_over:
     # Handle local events
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -118,3 +153,37 @@ while True:
     board.draw_boxes(screen)
     pygame.display.flip()
 
+    if board.is_game_over():
+        game_over = True
+
+
+# Clean up and exit
+pygame.quit()
+
+# Initialize pygame
+pygame.init()
+
+# Screen settings
+WIDTH, HEIGHT = 1000, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Display Winner")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Font settings
+font = pygame.font.SysFont('Arial', 32)
+
+winner = RED
+screen.fill(WHITE)
+winner_text = font.render(f"{glob_string} Wins!", True, BLACK)
+text_rect = winner_text.get_rect(center=(WIDTH/2, HEIGHT/2))
+screen.blit(winner_text, text_rect)
+pygame.display.flip()
+time.sleep(10)
+pygame.quit()
+client_listener.join()
+client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+client_socket.close()
