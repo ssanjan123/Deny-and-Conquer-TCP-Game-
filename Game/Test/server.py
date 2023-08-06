@@ -83,10 +83,11 @@ def handle_client(client_socket, client_addr):
 # syncs all player's boards
 def handle_broadcast():
     while True:
-        time.sleep(0.5)
+        time.sleep(0.2)
+        #print(board.board_to_string())
         for client in players.keys():
-            #send_data(client, "0123456789ABCDEF")
-            send_data(client, board)
+            send_data(client, board.board_to_string())
+            #send_data(client, board)
 
         if board.is_game_over():
             break

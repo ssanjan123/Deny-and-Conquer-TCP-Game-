@@ -33,6 +33,44 @@ class Board:
             #print("passed in x and y: ", x, " ", y)
             return None
 
+    def board_to_string(self):
+        serial = ""
+        for y in range(Board.ROWS):
+            for x in range(Board.COLS):
+                if self.boxes[y][x].color == None:
+                    serial += '0'
+                elif self.boxes[y][x].color == (255, 0, 0):
+                    serial += 'R'
+                elif self.boxes[y][x].color == (0, 255, 0):
+                    serial += 'G'
+                elif self.boxes[y][x].color == (0, 0, 255):
+                    serial += 'B'
+                else:
+                    serial += 'Y'
+        return serial
+
+    def string_to_board(self, serial):
+        index = 0
+        for y in range(Board.ROWS):
+            for x in range(Board.COLS):
+                #print(x, " " , y)
+                if serial[index] == '0':
+                    self.boxes[y][x].color = None
+                    self.boxes[y][x].is_taken = False
+                elif serial[index] == 'R':
+                    self.boxes[y][x].color = (255, 0, 0)
+                    self.boxes[y][x].is_taken = True
+                elif serial[index] == 'G':
+                    self.boxes[y][x].color = (0, 255, 0)
+                    self.boxes[y][x].is_taken = True
+                elif serial[index] == 'B':
+                    self.boxes[y][x].color = (0, 0, 255)
+                    self.boxes[y][x].is_taken = True
+                else:
+                    self.boxes[y][x].color = (255, 255, 0)
+                    self.boxes[y][x].is_taken = True
+                index += 1
+
     def draw_boxes(self, screen):
         for y, row in enumerate(self.boxes):
             for x, box in enumerate(row):

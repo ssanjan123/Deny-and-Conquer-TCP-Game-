@@ -42,8 +42,9 @@ def listener(board):
                     # Display an error message on the screen
                     print("The box you're trying to draw on is currently in use.")
                 else:
-                    print("received board update")
-                    board.deep_copy(data)
+                    print("serialized data is: ", data)
+                    #board.deep_copy(data)
+                    board.string_to_board(data)
         except BlockingIOError:
             pass  # No data to receive
         except Exception as e:
@@ -61,6 +62,7 @@ def listener(board):
             continue
 
     return
+
 # Server setup
 BUFFER_SIZE = 2048
 #SERVER_IP = '154.20.101.82'  # replace with your server's IP
