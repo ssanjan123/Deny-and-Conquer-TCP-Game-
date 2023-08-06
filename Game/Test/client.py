@@ -11,6 +11,9 @@ import random
 import sys
 import threading
 
+from tkinter import *
+from tkinter import messagebox
+
 def receive_data(sock):
     try:
         length_bytes = sock.recv(4)
@@ -60,6 +63,10 @@ def listener(board):
             pass  # No data to receive
         except Exception as e:
             continue
+    
+    Tk().wm_withdraw() #to hide the main window
+    messagebox.showinfo('Continue','OK')
+
 
     return
 
