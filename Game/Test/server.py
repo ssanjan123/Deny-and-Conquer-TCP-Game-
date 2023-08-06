@@ -69,9 +69,6 @@ def handle_client(client_socket, client_addr):
          # Check for game over condition and send appropriate message
         if board.is_game_over():
             print("====================board game over======================")
-            winner_color_key = display_game_over_message(players)
-            game_over_data = {"action": "game_over", "winner_color_key": winner_color_key}
-            send_data(client_socket, game_over_data)
             break
 
     print("returning from handler")
@@ -90,12 +87,17 @@ def handle_broadcast():
             #send_data(client, board)
 
         if board.is_game_over():
+            for client in players.keys():
+                winner_color_key = display_game_over_message(players)
+                game_over_data = {"action": "game_over", "winner_color_key": winner_color_key}
+                send_data(client, game_over_data)
             break
 
-    time.sleep(0.2)
     for client in players.keys():
-        send_data(client, board)
+        send_data(client, board.board_to_string())
     
+
+    time.sleep(6)
     for client in players.keys():
         client.close()
     
@@ -130,7 +132,7 @@ SERVER_IP = '0.0.0.0' # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 BUFFER_SIZE = 2048
-MAX_PLAYERS = 1
+MAX_PLAYERS = 3
 # Create a TCP socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(ADDR)

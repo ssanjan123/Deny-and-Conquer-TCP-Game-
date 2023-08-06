@@ -152,5 +152,4 @@ while not game_over:
 pygame.quit()
 client_listener.join()
 client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-time.sleep(2)
 client_socket.close()
