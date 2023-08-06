@@ -2,37 +2,32 @@ from box import Box
 import pygame
 
 class Board:
-    BOX_SIZE = 100  # We'll need to adjust this value based on the actual size of the boxes on screen
+    BOX_SIZE = 100
     COLS = 4
     ROWS = 4
     def __init__(self):
         self.boxes = [[Box((x*Board.BOX_SIZE, y*Board.BOX_SIZE)) for x in range(Board.COLS)] for y in range(Board.ROWS)]
 
+    # True if all boxes are taken; false otherwise
     def is_game_over(self):
-        # print("what the fuck")
-        # for y in range(Board.ROWS):
-        #     for x in range(Board.COLS):
-        #         print(x, " ", y)
-        #         if not self.boxes[y][x].is_taken:
-        #             return False
-        # return True
         return all(box.is_taken for row in self.boxes for box in row)
 
+    # copy board without reassigning box references
     def deep_copy(self, other_board):
         for y in range(Board.ROWS):
             for x in range(Board.COLS):
                 self.boxes[y][x].deep_copy(other_board.boxes[y][x])
 
+    # return box based on x,y mouse position
     def get_current_box(self, x, y):
         if 0 <= x < Board.COLS*Board.BOX_SIZE and 0 <= y < Board.ROWS*Board.BOX_SIZE:
             box_x = x // Board.BOX_SIZE
             box_y = y // Board.BOX_SIZE
-            #print("x is: ", box_y, " y is: ", box_x)
             return self.boxes[box_y][box_x]
         else:
-            #print("passed in x and y: ", x, " ", y)
             return None
 
+    # turn board info into a row * col length string
     def board_to_string(self):
         serial = ""
         for y in range(Board.ROWS):
@@ -49,11 +44,11 @@ class Board:
                     serial += 'Y'
         return serial
 
+    # turn string into board information
     def string_to_board(self, serial):
         index = 0
         for y in range(Board.ROWS):
             for x in range(Board.COLS):
-                #print(x, " " , y)
                 if serial[index] == '0':
                     self.boxes[y][x].color = None
                     self.boxes[y][x].is_taken = False

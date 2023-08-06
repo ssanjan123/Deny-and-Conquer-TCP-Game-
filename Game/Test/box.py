@@ -2,7 +2,7 @@
 from PIL import Image
 from PIL import ImageDraw
 import threading
-BOX_SIZE = 100  # Define the box size here, or get it from elsewhere in your program
+BOX_SIZE = 100
 
 class Box:
     def __init__(self, top_left_corner):
@@ -11,7 +11,7 @@ class Box:
         self.owner = None
         self.color = None
 
-        self.top_left_corner = top_left_corner
+        self.top_left_corner = top_left_corner # coordinate identifier
 
         # Create a new image for this box
         self.image = Image.new('RGB', (BOX_SIZE, BOX_SIZE))
@@ -26,6 +26,7 @@ class Box:
         self.__dict__.update(state)
         self.lock = threading.Lock()  # add the lock back after unpickling
 
+    # replicate box contents
     def deep_copy(self, other_box):
         self.is_taken = other_box.is_taken
         self.owner = other_box.owner
@@ -42,7 +43,7 @@ class Box:
         draw = ImageDraw.Draw(self.image)
 
         # Draw a small square around the scribble point
-        square_size = 10  # Change this value to adjust the size of the square
+        square_size = 10
         left = max(0, relative_x - square_size // 2)
         top = max(0, relative_y - square_size // 2)
         right = min(BOX_SIZE, relative_x + square_size // 2)
@@ -50,7 +51,6 @@ class Box:
         right = max(right, left + 1)
         bottom = max(bottom, top + 1)
         draw.rectangle([left, top, right, bottom], fill=player.color)
-        #draw.rectangle([left, top, right, bottom], fill=(0,255,0, 255), outline=(255, 0, 0))
         
 
 
