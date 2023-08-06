@@ -14,6 +14,8 @@ import threading
 from tkinter import *
 from tkinter import messagebox
 
+
+
 def receive_data(sock):
     try:
         length_bytes = sock.recv(4)
@@ -40,6 +42,8 @@ def listener(board):
                     winner_color_key = data["winner_color_key"]
                     #ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
                     print(f"The game is over. {winner_color_key}")
+                    global glob_string
+                    glob_string = f"The game is over. {winner_color_key}"
                     end_of_game = True
                 elif data == "box_locked":
                     # Display an error message on the screen
@@ -57,21 +61,19 @@ def listener(board):
         try:
             data = receive_data(client_socket)
             if data is not None:
-                board.deep_copy(data)
+                board.string_to_board(data)
                 break
         except BlockingIOError:
             pass  # No data to receive
         except Exception as e:
             continue
-    
-    Tk().wm_withdraw() #to hide the main window
-    messagebox.showinfo('Continue','OK')
 
 
     return
 
 # Server setup
 BUFFER_SIZE = 2048
+glob_string = ""
 #SERVER_IP = '154.20.101.82'  # replace with your server's IP
 #SERVER_IP = '24.80.198.173'  # replace with your server's IP
 SERVER_IP = '127.0.0.1'  # replace with your server's IP
@@ -157,6 +159,8 @@ while not game_over:
 
 # Clean up and exit
 pygame.quit()
+Tk().wm_withdraw() #to hide the main window
+messagebox.showinfo("winner", glob_string)
 client_listener.join()
 client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 client_socket.close()

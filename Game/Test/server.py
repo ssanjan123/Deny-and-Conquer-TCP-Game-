@@ -132,7 +132,7 @@ SERVER_IP = '0.0.0.0' # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 BUFFER_SIZE = 2048
-MAX_PLAYERS = 1
+MAX_PLAYERS = 3
 # Create a TCP socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(ADDR)
