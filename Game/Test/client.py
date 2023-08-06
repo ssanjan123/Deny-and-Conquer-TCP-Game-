@@ -159,8 +159,31 @@ while not game_over:
 
 # Clean up and exit
 pygame.quit()
-Tk().wm_withdraw() #to hide the main window
-messagebox.showinfo("winner", glob_string)
+
+# Initialize pygame
+pygame.init()
+
+# Screen settings
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Display Winner")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Font settings
+font = pygame.font.SysFont('Arial', 40)
+
+winner = RED
+screen.fill(WHITE)
+winner_text = font.render(f"{glob_string} Wins!", True, BLACK)
+text_rect = winner_text.get_rect(center=(WIDTH/2, HEIGHT/2))
+screen.blit(winner_text, text_rect)
+pygame.display.flip()
+time.sleep(3)
+pygame.quit()
 client_listener.join()
 client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 client_socket.close()
