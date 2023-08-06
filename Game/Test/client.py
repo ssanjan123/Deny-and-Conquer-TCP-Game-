@@ -35,7 +35,7 @@ def listener(board):
             if data is not None:
                 if type(data) is dict:
                     winner_color_key = data["winner_color_key"]
-                    ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
+                    #ctypes.windll.user32.MessageBoxW(0, f"The game is over. {winner_color_key}", "Game Over", 1)
                     print(f"The game is over. {winner_color_key}")
                     end_of_game = True
                 elif data == "box_locked":
