@@ -49,7 +49,7 @@ def listener(board):
                     # Display an error message on the screen
                     print("The box you're trying to draw on is currently in use.")
                 else:
-                    print("serialized data is: ", data)
+                    #print("serialized data is: ", data)
                     #board.deep_copy(data)
                     board.string_to_board(data)
         except BlockingIOError:

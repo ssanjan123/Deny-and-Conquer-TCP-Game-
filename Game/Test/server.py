@@ -41,35 +41,38 @@ def display_game_over_message(players):
 def handle_client(client_socket, client_addr):
     print(f"Accepted new client connection from {client_addr}")
     while True:
-        data = client_socket.recv(BUFFER_SIZE)
-        if not data:
-            break
-        action, *params = pickle.loads(data)  # Deserialize the player's move
-        if action == "new_player":
-            color = params[0]
-            players[client_socket] = Player(color)
-            print(f"New player connected with color {color}")
-        elif action == "stop_drawing_threshold":
-            players[client_socket].stop_drawing_server_colored()
-        elif action in ["start_drawing", "stop_drawing", "continue_drawing"]:
-            x, y = params
-            if action in ["start_drawing", "stop_drawing"]:
-                print(f"Received {action} action at ({x}, {y}) from client {client_addr}")
-            # Update the game board
-            box = board.get_current_box(x ,y)
-            if action == "start_drawing":
-                result = players[client_socket].start_drawing(box, x, y)
-                if result == "box_locked":
-                    send_data(client_socket, "box_locked")
-            elif action == "stop_drawing":
-                players[client_socket].stop_drawing()
-            elif action == "continue_drawing":
-                players[client_socket].continue_drawing(box, x, y)
+        try:
+            data = client_socket.recv(BUFFER_SIZE)
+            if not data:
+                break
+            action, *params = pickle.loads(data)  # Deserialize the player's move
+            if action == "new_player":
+                color = params[0]
+                players[client_socket] = Player(color)
+                print(f"New player connected with color {color}")
+            elif action == "stop_drawing_threshold":
+                players[client_socket].stop_drawing_server_colored()
+            elif action in ["start_drawing", "stop_drawing", "continue_drawing"]:
+                x, y = params
+                if action in ["start_drawing", "stop_drawing"]:
+                    print(f"Received {action} action at ({x}, {y}) from client {client_addr}")
+                # Update the game board
+                box = board.get_current_box(x ,y)
+                if action == "start_drawing":
+                    result = players[client_socket].start_drawing(box, x, y)
+                    if result == "box_locked":
+                        send_data(client_socket, "box_locked")
+                elif action == "stop_drawing":
+                    players[client_socket].stop_drawing()
+                elif action == "continue_drawing":
+                    players[client_socket].continue_drawing(box, x, y)
 
-         # Check for game over condition and send appropriate message
-        if board.is_game_over():
-            print("====================board game over======================")
-            break
+            # Check for game over condition and send appropriate message
+            if board.is_game_over():
+                print("====================board game over======================")
+                break
+        except Exception as _:
+            return
 
     print("returning from handler")
     return
@@ -132,7 +135,7 @@ SERVER_IP = '0.0.0.0' # replace with your server's IP
 SERVER_PORT = 5555  # replace with your server's port
 ADDR = (SERVER_IP, SERVER_PORT)
 BUFFER_SIZE = 2048
-MAX_PLAYERS = 1
+MAX_PLAYERS = 3
 # Create a TCP socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(ADDR)
