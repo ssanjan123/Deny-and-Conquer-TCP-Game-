@@ -1,2 +1,3 @@
 Pillow
 pygame
+# If the game is to be tested locally, change the "SERVER_IP " to 0.0.0.0.
