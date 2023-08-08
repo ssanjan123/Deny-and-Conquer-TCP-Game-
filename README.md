@@ -1,10 +1,3 @@
-Project Report
-
-
-
-
-Game Demo:-
-
 
 
 Game Description
@@ -197,69 +190,7 @@ Strategic Pivot: Manual Serialization and Streamlined Data Transfer
 
 The current implementation involves manual implementation of serialization and deserialization mechanisms, sidestepping the challenges associated with complex object pickling. The program now implements functions written to accept a Board object as an input parameter and produce an equivalent String representation of the board. This String, of significantly smaller size and complexity, is used for data transfer between the client and server instead.
 
- 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-i) Opening sockets:
-
-Opening the client socket and setting up the connection to the server within the client file:
-
-
-
-![docx_img_0.png](/mnt/data/pdf_images/docx_img_0.png)
-
-Opening the server socket and setting the server socket to listen for incoming data in the server file:
-
-
-
-![docx_img_1.png](/mnt/data/pdf_images/docx_img_1.png)
-
-ii) Handling the shared object:
-
-The lock object is created as an attribute of the class Box:
-
-![docx_img_2.png](/mnt/data/pdf_images/docx_img_2.png)
-
-The functions start_drawing and stop_drawing used to acquire and release locks are called from the server file:
-
-
-
-![docx_img_3.png](/mnt/data/pdf_images/docx_img_3.png)
-
-The start_drawing function is called when a client clicks on a box. The function checks the lock state of the lock attribute of the box object. The function attempts to acquire the lock associated with the box and returns “box_locked” if the lock has already been acquired by another client. If the lock is successfully acquired by the client is able to start drawing inside in the box.
-
-The start_drawing function implementation inside the Player class:
-
-
-
-![docx_img_4.png](/mnt/data/pdf_images/docx_img_4.png)
-
-The stop_drawing function is called when the client releases their clicked mouse from the box. This function releases the lock so that it may be acquired by another client.
 
 The stop_drawing function implementation inside the Player class:
 
