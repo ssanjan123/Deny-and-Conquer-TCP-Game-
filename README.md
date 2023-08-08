@@ -191,9 +191,3 @@ Strategic Pivot: Manual Serialization and Streamlined Data Transfer
 The current implementation involves manual implementation of serialization and deserialization mechanisms, sidestepping the challenges associated with complex object pickling. The program now implements functions written to accept a Board object as an input parameter and produce an equivalent String representation of the board. This String, of significantly smaller size and complexity, is used for data transfer between the client and server instead.
 
 
-
-The stop_drawing function implementation inside the Player class:
-
-
-
-![docx_img_5.png](/mnt/data/pdf_images/docx_img_5.png)
