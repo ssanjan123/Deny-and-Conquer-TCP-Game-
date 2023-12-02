@@ -77,4 +77,4 @@ The application consists of three base classes (`Box`, `Board`, and `Player`), a
    - Issue: Inconsistencies in client receiving board updates.
    - Solution: Manual serialization and streamlined data transfer.
 
-For detailed explanations of each implementation and the reasons behind their failures, refer to the extended documentation.
+For detailed explanations of each implementation and the reasons behind their failures, refer to the CMPT371_Project_Report_Final.pdf.
