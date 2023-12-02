@@ -1,5 +1,6 @@
 
-# Game Title
+# Online Conquerer
+![DALL·E 2023-12-01 21 48 03 - Create a simple and colorful 3D animation-style cover photo for the project 'Online Multiplayer Game - Deny and Conquer July 2023'  The image should f](https://github.com/ssanjan123/Deny-and-Conquer-TCP-Game-/assets/84153519/6aba6e00-480c-445a-aab2-00d4dbb8a5e1)
 
 ## Game Description
 
